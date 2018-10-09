@@ -1,4 +1,4 @@
-package com.team3256.database.model;
+package com.team3256.database.model.hr;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

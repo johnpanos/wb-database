@@ -6,10 +6,12 @@ import com.team3256.database.model.inventory.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+@Secured("ROLE_USER")
 @RestController
 @RequestMapping("/api/inventory/location")
 public class LocationController {
