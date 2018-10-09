@@ -53,7 +53,7 @@ public class LocationController {
         if (!location.isPresent()) {
             throw new DatabaseNotFoundException("no location found with id - " + id);
         }
-        
+
         locationRepository.delete(location.get());
         return location.get().getId();
     }
