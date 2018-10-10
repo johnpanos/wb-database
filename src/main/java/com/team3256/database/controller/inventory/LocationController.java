@@ -1,4 +1,4 @@
-package com.team3256.database.controller;
+package com.team3256.database.controller.inventory;
 
 import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.model.inventory.Location;

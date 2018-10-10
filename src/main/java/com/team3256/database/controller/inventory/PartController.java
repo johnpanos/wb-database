@@ -1,4 +1,4 @@
-package com.team3256.database.controller;
+package com.team3256.database.controller.inventory;
 
 import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.model.inventory.*;
@@ -29,7 +29,7 @@ public class PartController {
     @Autowired
     private PartVendorInformationRepository partVendorInformationRepository;
 
-    @PreAuthorize("hasRole('TEST')")
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Page getParts(Pageable pageable) {
         return partRepository.findAll(pageable);
@@ -46,18 +46,21 @@ public class PartController {
         }
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
-    public List<Part> searchParts(@RequestParam("q") String search) {
+    public Page searchParts(@RequestParam("q") String search, Pageable pageable) {
         System.out.println("SEARCH: " + search);
-        return partRepository.findByNameIgnoreCaseContaining(search);
+        return partRepository.findByNameIgnoreCaseContaining(search, pageable);
     }
 
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public Part createPart(@Valid @RequestBody Part part) {
         locationRepository.save(part.getLocation());
         return partRepository.save(part);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public Part updatePart(@RequestBody Part part) {
         Optional<Part> dbPartOptional = partRepository.findById(part.getId());
@@ -77,6 +80,8 @@ public class PartController {
         }
     }
 
+
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public String deletePart(@PathVariable("id") Long id) {
         Optional<Part> partOptional = partRepository.findById(id);
@@ -89,6 +94,7 @@ public class PartController {
         throw new DatabaseNotFoundException("no part found with id - " + id);
     }
 
+    @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/vendor-info/{id}", method = RequestMethod.POST)
     public Part addPartVendorInformation(@PathVariable("id") Long id, @RequestBody PartVendorInformation partVendorInformation, @RequestParam("vendor") Long vendorId) {
         Optional<Part> partOptional = partRepository.findById(id);

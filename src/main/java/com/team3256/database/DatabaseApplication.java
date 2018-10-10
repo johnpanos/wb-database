@@ -1,6 +1,5 @@
 package com.team3256.database;
 
-import com.oracle.tools.packager.Log;
 import com.team3256.database.model.hr.Role;
 import com.team3256.database.model.hr.RoleRepository;
 import com.team3256.database.model.hr.User;
@@ -12,6 +11,9 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -62,7 +64,7 @@ public class DatabaseApplication {
             user.setRoles(Arrays.asList(adminRole, userRole));
             user.setPassword(new BCryptPasswordEncoder().encode("malibupanos"));
             userRepository.save(user);
-            Log.info("CREATED ADMIN ACCOUNT");
+            System.out.println("CREATED ADMIN ACCOUNT");
         }
     }
 }

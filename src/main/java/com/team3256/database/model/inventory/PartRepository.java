@@ -9,5 +9,5 @@ import java.util.List;
 public interface PartRepository extends PagingAndSortingRepository<Part, Long> {
     Page findAll(Pageable pageable);
 
-    List<Part> findByNameIgnoreCaseContaining(String search);
+    Page findByNameIgnoreCaseContaining(String search, Pageable pageable);
 }
