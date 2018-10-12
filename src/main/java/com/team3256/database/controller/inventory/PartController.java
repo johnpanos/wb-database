@@ -56,7 +56,6 @@ public class PartController {
     @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public Part createPart(@Valid @RequestBody Part part) {
-        locationRepository.save(part.getLocation());
         return partRepository.save(part);
     }
 

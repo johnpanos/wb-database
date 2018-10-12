@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -19,8 +20,8 @@ public class VendorController {
     private VendorRepository vendorRepository;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public Page getAllVendors(Pageable pageable) {
-        return vendorRepository.findAll(pageable);
+    public List<Vendor> getAllVendors() {
+        return vendorRepository.findAll();
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)

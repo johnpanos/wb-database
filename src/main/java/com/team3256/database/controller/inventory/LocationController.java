@@ -1,5 +1,6 @@
 package com.team3256.database.controller.inventory;
 
+import com.team3256.database.error.DatabaseAlreadyExistsException;
 import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.model.inventory.Location;
 import com.team3256.database.model.inventory.LocationRepository;
@@ -32,6 +33,17 @@ public class LocationController {
         }
 
         return locationOptional.get();
+    }
+
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public Location createLocation(@RequestBody Location location) {
+        Optional<Location> locationOptional = locationRepository.findByNameIgnoringCase(location.getName());
+
+        if (locationOptional.isPresent()) {
+            throw new DatabaseAlreadyExistsException("location with name already exists");
+        }
+
+        return locationRepository.save(location);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
