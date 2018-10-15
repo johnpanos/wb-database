@@ -25,7 +25,7 @@ public class LocationController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Location getLocation(@PathVariable("id") Long id) {
+    public Location getLocation(@PathVariable("id") Integer id) {
         Optional<Location> locationOptional = locationRepository.findById(id);
 
         if (!locationOptional.isPresent()) {
@@ -61,7 +61,7 @@ public class LocationController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public Long deleteLocation(@PathVariable("id") Long id) {
+    public Integer deleteLocation(@PathVariable("id") Integer id) {
         Optional<Location> location = locationRepository.findById(id);
 
         if (!location.isPresent()) {

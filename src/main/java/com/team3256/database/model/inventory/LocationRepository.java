@@ -6,7 +6,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.Optional;
 
-public interface LocationRepository extends PagingAndSortingRepository<Location, Long> {
+public interface LocationRepository extends PagingAndSortingRepository<Location, Integer> {
     Optional<Location> findByNameIgnoringCase(String name);
     Page findAll(Pageable pageable);
 }

@@ -1,0 +1,1 @@
+ALTER TABLE part_vendor_information DROP COLUMN vendor_information_id;

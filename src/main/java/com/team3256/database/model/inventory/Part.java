@@ -12,8 +12,8 @@ import java.util.List;
 @Entity(name = "part")
 public class Part {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @NotEmpty
     @Size(max = 64)
@@ -38,15 +38,15 @@ public class Part {
     @Size(max = 64, message = "Sublocation must me no longer than 64 characters")
     private String sublocation;
 
-    @OneToMany(orphanRemoval = true)
-    @JoinColumn(name = "vendor_information_id")
+    @OneToMany()
+    @JoinColumn(name = "part_id")
     private List<PartVendorInformation> vendorInformation;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

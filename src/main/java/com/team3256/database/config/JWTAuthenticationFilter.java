@@ -1,6 +1,8 @@
 package com.team3256.database.config;
 
+import com.team3256.database.error.UnauthorizedException;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -36,12 +38,18 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             authToken = header.replace(TOKEN_PREFIX,"");
             try {
                 username = jwtTokenUtil.getUsernameFromToken(authToken);
+            } catch (MalformedJwtException e) {
+                res.sendError(401, "Malformed JWT Exception");
+                return;
             } catch (IllegalArgumentException e) {
-                logger.error("an error occured during getting username from token", e);
+                res.sendError(401, "An error occured during getting username from token");
+                return;
             } catch (ExpiredJwtException e) {
-                logger.warn("the token is expired and not valid anymore", e);
+                res.sendError(401, "The token is expired and not valid anymore");
+                return;
             } catch(SignatureException e){
-                logger.error("Authentication Failed. Username or Password not valid.");
+                res.sendError(401, "Authentication Failed. Username or Password not valid.");
+                return;
             }
         } else {
             logger.warn("couldn't find bearer string, will ignore the header");

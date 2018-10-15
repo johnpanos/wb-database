@@ -49,7 +49,7 @@ public class VendorController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public Long deleteVendor(@PathVariable("id") Long id) {
+    public Integer deleteVendor(@PathVariable("id") Integer id) {
         Optional<Vendor> vendorOptional = vendorRepository.findById(id);
 
         if (!vendorOptional.isPresent()) {

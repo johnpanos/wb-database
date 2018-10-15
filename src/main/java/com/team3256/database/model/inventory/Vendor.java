@@ -2,15 +2,16 @@ package com.team3256.database.model.inventory;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
-@Entity
+@Entity(name = "vendor")
 public class Vendor {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @NotEmpty
     @Size(max = 64)
@@ -32,11 +33,11 @@ public class Vendor {
     @Size(max = 64)
     private String phoneNumber;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -6,11 +6,11 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-@Entity
+@Entity(name = "part_vendor_information")
 public class PartVendorInformation {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @NotEmpty
     private String partNumber;
@@ -26,11 +26,11 @@ public class PartVendorInformation {
     @JsonBackReference
     private Part part;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

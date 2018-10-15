@@ -6,7 +6,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
 
-public interface PartRepository extends PagingAndSortingRepository<Part, Long> {
+public interface PartRepository extends PagingAndSortingRepository<Part, Integer> {
     Page findAll(Pageable pageable);
 
     Page findByNameIgnoreCaseContaining(String search, Pageable pageable);

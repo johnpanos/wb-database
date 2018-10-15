@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -36,7 +34,7 @@ public class PartController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public Part getPart(@PathVariable("id") Long id) {
+    public Part getPart(@PathVariable("id") Integer id) {
         Optional<Part> partOptional = partRepository.findById(id);
 
         if (partOptional.isPresent()) {
@@ -69,7 +67,6 @@ public class PartController {
 
             dbPart.setName(part.getName());
             dbPart.setSublocation(part.getSublocation());
-            dbPart.setQuantity(part.getQuantity());
             dbPart.setMinQuantity(part.getMinQuantity());
             dbPart.setNomenclature(part.getNomenclature());
 
@@ -79,23 +76,92 @@ public class PartController {
         }
     }
 
+    @Secured("ROLE_ADMIN")
+    @PutMapping("/{id}/withdrawal")
+    public Part withdrawal(@PathVariable Integer id, @RequestParam("q") int quantity) {
+        Optional<Part> partOptional = partRepository.findById(id);
+
+        if (!partOptional.isPresent()) {
+            throw new DatabaseNotFoundException("no part found with id - " + id);
+        }
+
+        Part part = partOptional.get();
+
+        if (quantity > part.getQuantity()) {
+            quantity = part.getQuantity();
+        }
+
+        if (quantity < 0) {
+            quantity = 0;
+        }
+
+        part.setQuantity(part.getQuantity() - quantity);
+
+        return partRepository.save(part);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PutMapping("/{id}/deposit")
+    public Part deposit(@PathVariable Integer id, @RequestParam("q") int quantity) {
+        Optional<Part> partOptional = partRepository.findById(id);
+
+        if (!partOptional.isPresent()) {
+            throw new DatabaseNotFoundException("no part found with id - " + id);
+        }
+
+        if (quantity < 0) {
+            quantity = 0;
+        }
+
+        Part part = partOptional.get();
+
+        part.setQuantity(part.getQuantity() + quantity);
+
+        return partRepository.save(part);
+    }
+
+    @Secured("ROLE_USER")
+    @RequestMapping(value = "/{id}/{locationId}", method = RequestMethod.PUT)
+    public Part updatePartLocation(@PathVariable Integer id, @PathVariable("locationId") Integer locationId) {
+        Optional<Part> dbPartOptional = partRepository.findById(id);
+        Optional<Location> dbLocationOptional = locationRepository.findById(locationId);
+
+        if (!dbPartOptional.isPresent()) {
+            throw new DatabaseNotFoundException("no part found with id - " + id);
+        }
+
+        if (!dbLocationOptional.isPresent()) {
+            throw new DatabaseNotFoundException("no location found with id - " + locationId);
+        }
+
+        Part dbPart = dbPartOptional.get();
+        Location dbLocation = dbLocationOptional.get();
+
+        dbPart.setLocation(dbLocation);
+
+        return partRepository.save(dbPart);
+    }
 
     @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String deletePart(@PathVariable("id") Long id) {
+    public String deletePart(@PathVariable("id") Integer id) {
         Optional<Part> partOptional = partRepository.findById(id);
 
         if (partOptional.isPresent()) {
             Part part = partOptional.get();
-            partRepository.delete(part);
+            for (PartVendorInformation vendorInformation : part.getVendorInformation()) {
+                partVendorInformationRepository.delete(vendorInformation);
+            }
+            partRepository.deleteById(id);
             return "yay";
         }
+
         throw new DatabaseNotFoundException("no part found with id - " + id);
     }
 
     @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/vendor-info/{id}", method = RequestMethod.POST)
-    public Part addPartVendorInformation(@PathVariable("id") Long id, @RequestBody PartVendorInformation partVendorInformation, @RequestParam("vendor") Long vendorId) {
+    public Part addPartVendorInformation(@PathVariable("id") Integer id, @RequestBody PartVendorInformation partVendorInformation, @RequestParam("vendor") Integer vendorId) {
         Optional<Part> partOptional = partRepository.findById(id);
         Optional<Vendor> vendorOptional = vendorRepository.findById(vendorId);
 
@@ -115,5 +181,28 @@ public class PartController {
         part.getVendorInformation().add(partVendorInformation);
         partRepository.save(part);
         return part;
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PutMapping("/vendor-info/{id}")
+    public PartVendorInformation updatePartVendorInformation(@PathVariable Integer id, @RequestBody PartVendorInformation partVendorInformation) {
+        Optional<PartVendorInformation> partVendorInformationOptional = partVendorInformationRepository.findById(id);
+        Optional<Vendor> vendorOptional = vendorRepository.findById(partVendorInformation.getVendor().getId());
+
+        if (!partVendorInformationOptional.isPresent()) {
+            throw new DatabaseNotFoundException("no part vendor information found with id - " + id);
+        }
+
+        if (!vendorOptional.isPresent()) {
+            throw new DatabaseNotFoundException("no vendor found with id - " + partVendorInformation.getVendor().getId());
+        }
+
+        PartVendorInformation dbPartVendorInformation = partVendorInformationOptional.get();
+        Vendor dbVendor = vendorOptional.get();
+
+        dbPartVendorInformation.setVendor(dbVendor);
+        dbPartVendorInformation.setPartNumber(partVendorInformation.getPartNumber());
+
+        return partVendorInformationRepository.save(dbPartVendorInformation);
     }
 }

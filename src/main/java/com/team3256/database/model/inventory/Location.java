@@ -8,20 +8,21 @@ import java.util.List;
 @Entity(name = "location")
 public class Location {
     @Id
-    @GeneratedValue
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     private String name;
 
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "location_id")
     @JsonBackReference
     private List<Part> parts;
 
-    public long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

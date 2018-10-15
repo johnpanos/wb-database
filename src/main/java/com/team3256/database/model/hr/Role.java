@@ -3,11 +3,11 @@ package com.team3256.database.model.hr;
 import javax.persistence.*;
 import java.util.List;
 
-@Entity
+@Entity(name = "role")
 public class Role {
     @Id
-    @GeneratedValue
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Column
     private String name;
@@ -15,11 +15,11 @@ public class Role {
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private List<User> users;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
