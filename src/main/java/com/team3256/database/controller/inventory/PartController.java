@@ -144,7 +144,7 @@ public class PartController {
 
     @Secured("ROLE_ADMIN")
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String deletePart(@PathVariable("id") Integer id) {
+    public Integer deletePart(@PathVariable("id") Integer id) {
         Optional<Part> partOptional = partRepository.findById(id);
 
         if (partOptional.isPresent()) {
@@ -153,7 +153,7 @@ public class PartController {
                 partVendorInformationRepository.delete(vendorInformation);
             }
             partRepository.deleteById(id);
-            return "yay";
+            return id;
         }
 
         throw new DatabaseNotFoundException("no part found with id - " + id);
