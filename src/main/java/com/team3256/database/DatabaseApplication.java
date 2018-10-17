@@ -1,9 +1,6 @@
 package com.team3256.database;
 
-import com.team3256.database.model.hr.Role;
-import com.team3256.database.model.hr.RoleRepository;
-import com.team3256.database.model.hr.User;
-import com.team3256.database.model.hr.UserRepository;
+import com.team3256.database.model.hr.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -39,11 +36,18 @@ public class DatabaseApplication {
     @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
         Optional<Role> adminRoleOptional = roleRepository.findByName("ADMIN");
+        Optional<Role> mentorRoleOptional = roleRepository.findByName("MENTOR");
         Optional<Role> userRoleOptional = roleRepository.findByName("USER");
 
         if (!adminRoleOptional.isPresent()) {
             Role role = new Role();
             role.setName("ADMIN");
+            roleRepository.save(role);
+        }
+
+        if (!mentorRoleOptional.isPresent()) {
+            Role role = new Role();
+            role.setName("MENTOR");
             roleRepository.save(role);
         }
 
@@ -61,10 +65,17 @@ public class DatabaseApplication {
         if (!userOptional.isPresent()) {
             User user = new User();
             user.setEmail("admin@localhost");
+            user.setType(UserType.ADMIN);
             user.setRoles(Arrays.asList(adminRole, userRole));
             user.setPassword(new BCryptPasswordEncoder().encode("malibupanos"));
             userRepository.save(user);
             System.out.println("CREATED ADMIN ACCOUNT");
+        }
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setType(UserType.ADMIN);
+            userRepository.save(user);
         }
     }
 }

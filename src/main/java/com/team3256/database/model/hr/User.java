@@ -1,6 +1,10 @@
 package com.team3256.database.model.hr;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity(name = "wb_user")
@@ -9,11 +13,39 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true)
+    @Column(unique = true, name = "email")
     private String email;
 
-    @Column
+    @JsonIgnore
+    @Column(name = "password")
     private String password;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "middle_name")
+    private String middleName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "birthday")
+    private Date birthday;
+
+    @Column(name = "cell_phone")
+    private String cellPhone;
+
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private UserGender gender;
+
+    @Column(name = "user_type")
+    @Enumerated(EnumType.STRING)
+    private UserType type;
+
+    @OneToOne(mappedBy = "user")
+    private Student student;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "user_with_role",
@@ -51,5 +83,69 @@ public class User {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Date getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(Date birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getCellPhone() {
+        return cellPhone;
+    }
+
+    public void setCellPhone(String cellPhone) {
+        this.cellPhone = cellPhone;
+    }
+
+    public UserGender getGender() {
+        return gender;
+    }
+
+    public void setGender(UserGender gender) {
+        this.gender = gender;
+    }
+
+    public UserType getType() {
+        return type;
+    }
+
+    public void setType(UserType type) {
+        this.type = type;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
     }
 }

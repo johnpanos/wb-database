@@ -1,5 +1,7 @@
 package com.team3256.database.model.hr;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -12,6 +14,7 @@ public class Role {
     @Column
     private String name;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private List<User> users;
 

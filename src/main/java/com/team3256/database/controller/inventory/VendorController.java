@@ -6,6 +6,7 @@ import com.team3256.database.model.inventory.VendorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,16 +20,19 @@ public class VendorController {
     @Autowired
     private VendorRepository vendorRepository;
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<Vendor> getAllVendors() {
         return vendorRepository.findAll();
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public Vendor createVendor(@RequestBody @Valid Vendor vendor) {
         return vendorRepository.save(vendor);
     }
 
+    @Secured("ROLE_USER")
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public Vendor updateVendor(@RequestBody Vendor vendor) {
         Optional<Vendor> vendorOptional = vendorRepository.findById(vendor.getId());

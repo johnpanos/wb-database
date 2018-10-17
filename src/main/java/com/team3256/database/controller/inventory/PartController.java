@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -51,13 +52,13 @@ public class PartController {
         return partRepository.findByNameIgnoreCaseContaining(search, pageable);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_CREATE" })
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public Part createPart(@Valid @RequestBody Part part) {
         return partRepository.save(part);
     }
 
-    @Secured("ROLE_USER")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_UPDATE" })
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public Part updatePart(@RequestBody Part part) {
         Optional<Part> dbPartOptional = partRepository.findById(part.getId());
@@ -157,52 +158,5 @@ public class PartController {
         }
 
         throw new DatabaseNotFoundException("no part found with id - " + id);
-    }
-
-    @Secured("ROLE_ADMIN")
-    @RequestMapping(value = "/vendor-info/{id}", method = RequestMethod.POST)
-    public Part addPartVendorInformation(@PathVariable("id") Integer id, @RequestBody PartVendorInformation partVendorInformation, @RequestParam("vendor") Integer vendorId) {
-        Optional<Part> partOptional = partRepository.findById(id);
-        Optional<Vendor> vendorOptional = vendorRepository.findById(vendorId);
-
-        if (!partOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part found with id - " + id);
-        }
-
-        if (!vendorOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no vendor found with id - " + vendorId);
-        }
-
-        Part part = partOptional.get();
-        Vendor vendor = vendorOptional.get();
-        partVendorInformation.setVendor(vendor);
-        partVendorInformation.setPart(part);
-        partVendorInformationRepository.save(partVendorInformation);
-        part.getVendorInformation().add(partVendorInformation);
-        partRepository.save(part);
-        return part;
-    }
-
-    @Secured("ROLE_ADMIN")
-    @PutMapping("/vendor-info/{id}")
-    public PartVendorInformation updatePartVendorInformation(@PathVariable Integer id, @RequestBody PartVendorInformation partVendorInformation) {
-        Optional<PartVendorInformation> partVendorInformationOptional = partVendorInformationRepository.findById(id);
-        Optional<Vendor> vendorOptional = vendorRepository.findById(partVendorInformation.getVendor().getId());
-
-        if (!partVendorInformationOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part vendor information found with id - " + id);
-        }
-
-        if (!vendorOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no vendor found with id - " + partVendorInformation.getVendor().getId());
-        }
-
-        PartVendorInformation dbPartVendorInformation = partVendorInformationOptional.get();
-        Vendor dbVendor = vendorOptional.get();
-
-        dbPartVendorInformation.setVendor(dbVendor);
-        dbPartVendorInformation.setPartNumber(partVendorInformation.getPartNumber());
-
-        return partVendorInformationRepository.save(dbPartVendorInformation);
     }
 }
