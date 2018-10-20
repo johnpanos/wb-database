@@ -38,7 +38,7 @@ public class VendorController {
         Optional<Vendor> vendorOptional = vendorRepository.findById(vendor.getId());
 
         if (!vendorOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no vendor found with id - " + vendor.getId());
+            throw new DatabaseNotFoundException();
         }
 
         Vendor dbVendor = vendorOptional.get();
@@ -57,7 +57,7 @@ public class VendorController {
         Optional<Vendor> vendorOptional = vendorRepository.findById(id);
 
         if (!vendorOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no vendor found with id - " + id);
+            throw new DatabaseNotFoundException();
         }
 
         vendorRepository.deleteById(id);

@@ -1,5 +1,7 @@
 package com.team3256.database.model.hr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,21 +15,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
 
+    Logger logger = LoggerFactory.getLogger(UserDetailsServiceImpl.class);
+
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
         Optional<User> userOptional = userRepository.findByEmail(s);
 
-        System.out.println(s);
+        logger.info("User (" + s + ") requesting authentication");
 
         org.springframework.security.core.userdetails.User.UserBuilder builder = null;
         if (userOptional.isPresent()) {
-            System.out.println("USER IS PRESENT");
             User user = userOptional.get();
+            logger.info("User with ID: " + user.getId() + " (" + user.getEmail() + ") authenticated");
             builder = org.springframework.security.core.userdetails.User.withUsername(s);
             builder.password(user.getPassword());
             builder.roles(getRoles(user.getRoles()).toArray(new String[0]));
         } else {
-            throw new UsernameNotFoundException("User not found.");
+            throw new UsernameNotFoundException("User not found");
         }
 
         return builder.build();
@@ -38,6 +42,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (roleList.size() > 0) {
             roleList.stream().forEach(role -> roleStringList.add(role.getName()));
         }
+        logger.info("Setting roles for user");
         return roleStringList;
     }
 }

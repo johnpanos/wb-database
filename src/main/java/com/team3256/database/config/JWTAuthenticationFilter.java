@@ -1,6 +1,5 @@
 package com.team3256.database.config;
 
-import com.team3256.database.error.UnauthorizedException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -48,21 +47,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 res.sendError(401, "The token is expired and not valid anymore");
                 return;
             } catch(SignatureException e){
-                res.sendError(401, "Authentication Failed. Username or Password not valid.");
+                res.sendError(401, "Authentication Failed. Email or Password not valid.");
                 return;
             }
         } else {
-            logger.warn("couldn't find bearer string, will ignore the header");
+            logger.warn("Bearer string not found, will ignore the header");
         }
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtTokenUtil.validateToken(authToken, userDetails)) {
                 UsernamePasswordAuthenticationToken authentication = jwtTokenUtil.getAuthentication(authToken, SecurityContextHolder.getContext().getAuthentication(), userDetails);
-                //UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                logger.info("authenticated user " + username + ", setting security context");
+                logger.info("Authenticated user " + username + ", setting security context");
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

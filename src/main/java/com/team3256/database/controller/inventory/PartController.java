@@ -2,6 +2,8 @@ package com.team3256.database.controller.inventory;
 
 import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.model.inventory.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,8 @@ import java.util.Optional;
 @RequestMapping("/api/inventory/part")
 public class PartController {
 
+    private static final Logger logger = LoggerFactory.getLogger(PartController.class);
+
     @Autowired
     private PartRepository partRepository;
 
@@ -29,134 +33,116 @@ public class PartController {
     private PartVendorInformationRepository partVendorInformationRepository;
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @GetMapping("/")
     public Page getParts(Pageable pageable) {
+        logger.info("Getting all parts");
         return partRepository.findAll(pageable);
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @GetMapping("/{id}")
     public Part getPart(@PathVariable("id") Integer id) {
         Optional<Part> partOptional = partRepository.findById(id);
+
+        logger.info("Getting part with id: " + id);
 
         if (partOptional.isPresent()) {
             return partOptional.get();
         } else {
-            throw new DatabaseNotFoundException("no part found with id - " + id);
+            throw new DatabaseNotFoundException();
         }
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/search", method = RequestMethod.GET)
+    @GetMapping("/search")
     public Page searchParts(@RequestParam("q") String search, Pageable pageable) {
-        System.out.println("SEARCH: " + search);
+        logger.info("Searching parts with query: \"" + search + "\"");
         return partRepository.findByNameIgnoreCaseContaining(search, pageable);
     }
 
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_CREATE" })
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @PostMapping("/")
     public Part createPart(@Valid @RequestBody Part part) {
         return partRepository.save(part);
     }
 
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_UPDATE" })
-    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+    @PutMapping("/{id}")
     public Part updatePart(@RequestBody Part part) {
-        Optional<Part> dbPartOptional = partRepository.findById(part.getId());
-
-        if (dbPartOptional.isPresent()) {
-            Part dbPart = dbPartOptional.get();
-
+        return partRepository.findById(part.getId()).map(dbPart -> {
             dbPart.setName(part.getName());
             dbPart.setSublocation(part.getSublocation());
             dbPart.setMinQuantity(part.getMinQuantity());
             dbPart.setNomenclature(part.getNomenclature());
 
             return partRepository.save(dbPart);
-        } else {
-            throw new DatabaseNotFoundException("no part found with id - " + part.getId());
-        }
+        }).orElseThrow(DatabaseNotFoundException::new);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_QUANTITY" })
     @PutMapping("/{id}/withdrawal")
     public Part withdrawal(@PathVariable Integer id, @RequestParam("q") int quantity) {
-        Optional<Part> partOptional = partRepository.findById(id);
+        return partRepository.findById(id).map(part -> {
+            int finalQuantity = quantity;
+            if (finalQuantity > part.getQuantity()) {
+                finalQuantity = part.getQuantity();
+            }
 
-        if (!partOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part found with id - " + id);
-        }
+            if (finalQuantity < 0) {
+                finalQuantity = 0;
+            }
 
-        Part part = partOptional.get();
+            part.setQuantity(part.getQuantity() - finalQuantity);
 
-        if (quantity > part.getQuantity()) {
-            quantity = part.getQuantity();
-        }
-
-        if (quantity < 0) {
-            quantity = 0;
-        }
-
-        part.setQuantity(part.getQuantity() - quantity);
-
-        return partRepository.save(part);
+            return partRepository.save(part);
+        }).orElseThrow(DatabaseNotFoundException::new);
     }
 
     @Secured("ROLE_ADMIN")
     @PutMapping("/{id}/deposit")
-    public Part deposit(@PathVariable Integer id, @RequestParam("q") int quantity) {
-        Optional<Part> partOptional = partRepository.findById(id);
-
-        if (!partOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part found with id - " + id);
-        }
-
-        if (quantity < 0) {
-            quantity = 0;
-        }
-
-        Part part = partOptional.get();
-
-        part.setQuantity(part.getQuantity() + quantity);
-
-        return partRepository.save(part);
+    public Part deposit(@PathVariable Integer id, @RequestParam("q") Integer quantity) {
+        return partRepository.findById(id).map(part -> {
+            part.setQuantity(part.getQuantity() + quantity < 0 ? 0 : quantity);
+            return partRepository.save(part);
+        }).orElseThrow(DatabaseNotFoundException::new);
     }
 
     @Secured("ROLE_USER")
-    @RequestMapping(value = "/{id}/{locationId}", method = RequestMethod.PUT)
+    @PutMapping("/{id}/{locationId}")
     public Part updatePartLocation(@PathVariable Integer id, @PathVariable("locationId") Integer locationId) {
-        Optional<Part> dbPartOptional = partRepository.findById(id);
-        Optional<Location> dbLocationOptional = locationRepository.findById(locationId);
-
-        if (!dbPartOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part found with id - " + id);
-        }
-
-        if (!dbLocationOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no location found with id - " + locationId);
-        }
-
-        Part dbPart = dbPartOptional.get();
-        Location dbLocation = dbLocationOptional.get();
-
-        dbPart.setLocation(dbLocation);
-
-        return partRepository.save(dbPart);
+        return partRepository.findById(id).map(part -> locationRepository.findById(locationId).map(location -> {
+            part.setLocation(location);
+            return partRepository.save(part);
+        }).orElseThrow(DatabaseNotFoundException::new)).orElseThrow(DatabaseNotFoundException::new);
     }
 
     @Secured("ROLE_ADMIN")
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping("/{id}")
     public Integer deletePart(@PathVariable("id") Integer id) {
-        Optional<Part> partOptional = partRepository.findById(id);
-
-        if (partOptional.isPresent()) {
-            Part part = partOptional.get();
+        return partRepository.findById(id).map(part -> {
             for (PartVendorInformation vendorInformation : part.getVendorInformation()) {
                 partVendorInformationRepository.delete(vendorInformation);
             }
             partRepository.deleteById(id);
             return id;
+        }).orElseThrow(DatabaseNotFoundException::new);
+    }
+
+    @Secured("ROLE_ADMIN")
+    @DeleteMapping("/")
+    public Integer[] deleteParts(@RequestBody Integer[] ids) {
+        for (int i = 0; i < ids.length; i++) {
+            int id = ids[i];
+            Optional<Part> partOptional = partRepository.findById(id);
+
+            if (partOptional.isPresent()) {
+                Part part = partOptional.get();
+                for (PartVendorInformation vendorInformation : part.getVendorInformation()) {
+                    partVendorInformationRepository.delete(vendorInformation);
+                }
+                partRepository.deleteById(id);
+            }
         }
 
-        throw new DatabaseNotFoundException("no part found with id - " + id);
+        return ids;
     }
 }

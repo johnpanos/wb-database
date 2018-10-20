@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Optional;
 
 @SpringBootApplication
@@ -60,21 +61,20 @@ public class DatabaseApplication {
         Role adminRole = roleRepository.findByName("ADMIN").get();
         Role userRole = roleRepository.findByName("USER").get();
 
-        Optional<User> userOptional = userRepository.findByEmail("admin@localhost");
+        Optional<User> userOptional = userRepository.findByEmail("admin@mywb.vcs.net");
 
         if (!userOptional.isPresent()) {
             User user = new User();
-            user.setEmail("admin@localhost");
+            user.setEmail("admin@mywb.vcs.net");
             user.setType(UserType.ADMIN);
             user.setRoles(Arrays.asList(adminRole, userRole));
-            user.setPassword(new BCryptPasswordEncoder().encode("malibupanos"));
-            userRepository.save(user);
-            System.out.println("CREATED ADMIN ACCOUNT");
-        }
-
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setType(UserType.ADMIN);
+            user.setPassword(new BCryptPasswordEncoder().encode("r0b0tic$"));
+            user.setFirstName("Admin");
+            user.setMiddleName("N/A");
+            user.setLastName("N/A");
+            user.setCellPhone("N/A");
+            user.setGender(UserGender.MALE);
+            user.setBirthday(new Date());
             userRepository.save(user);
         }
     }

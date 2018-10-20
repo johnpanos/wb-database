@@ -1,13 +1,16 @@
 package com.team3256.database.controller.hr;
 
+import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.model.hr.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/hr/mentor")
@@ -19,13 +22,13 @@ public class MentorController {
     private RoleRepository roleRepository;
 
     @GetMapping(value = "/")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
     private List<User> getMentors() {
         return userRepository.findByType(UserType.MENTOR);
     }
 
     @PostMapping(value = "/")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MENTOR')")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
     private User createMentor(@RequestBody User mentor) {
         User dbMentor = new User();
 
@@ -46,4 +49,5 @@ public class MentorController {
 
         return userRepository.save(dbMentor);
     }
+
 }

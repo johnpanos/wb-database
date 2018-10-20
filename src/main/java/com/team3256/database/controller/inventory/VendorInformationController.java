@@ -30,11 +30,11 @@ public class VendorInformationController {
         Optional<Vendor> vendorOptional = vendorRepository.findById(vendorId);
 
         if (!partOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part found with id - " + id);
+            throw new DatabaseNotFoundException();
         }
 
         if (!vendorOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no vendor found with id - " + vendorId);
+            throw new DatabaseNotFoundException();
         }
 
         Part part = partOptional.get();
@@ -54,11 +54,11 @@ public class VendorInformationController {
         Optional<Vendor> vendorOptional = vendorRepository.findById(partVendorInformation.getVendor().getId());
 
         if (!partVendorInformationOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part vendor information found with id - " + id);
+            throw new DatabaseNotFoundException();
         }
 
         if (!vendorOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no vendor found with id - " + partVendorInformation.getVendor().getId());
+            throw new DatabaseNotFoundException();
         }
 
         PartVendorInformation dbPartVendorInformation = partVendorInformationOptional.get();
@@ -76,7 +76,7 @@ public class VendorInformationController {
         Optional<PartVendorInformation> partVendorInformationOptional = partVendorInformationRepository.findById(id);
 
         if (!partVendorInformationOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no part vendor information found with id - " + id);
+            throw new DatabaseNotFoundException();
         }
 
         partVendorInformationRepository.deleteById(id);

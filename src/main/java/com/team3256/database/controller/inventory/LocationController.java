@@ -26,13 +26,7 @@ public class LocationController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
     public Location getLocation(@PathVariable("id") Integer id) {
-        Optional<Location> locationOptional = locationRepository.findById(id);
-
-        if (!locationOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no location with id - " + id);
-        }
-
-        return locationOptional.get();
+        return locationRepository.findById(id).orElseThrow(DatabaseNotFoundException::new);
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
@@ -48,27 +42,17 @@ public class LocationController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public Location updateLocation(@RequestBody Location location) {
-        Optional<Location> locationOptional = locationRepository.findById(location.getId());
-
-        if (!locationOptional.isPresent()) {
-            throw new DatabaseNotFoundException("no location found with id - " + location.getId());
-        }
-
-        Location dbLocation = locationOptional.get();
-        dbLocation.setName(location.getName());
-        locationRepository.save(dbLocation);
-        return dbLocation;
+        return locationRepository.findById(location.getId()).map(dbLocation -> {
+            dbLocation.setName(location.getName());
+            return locationRepository.save(dbLocation);
+        }).orElseThrow(DatabaseNotFoundException::new);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public Integer deleteLocation(@PathVariable("id") Integer id) {
-        Optional<Location> location = locationRepository.findById(id);
-
-        if (!location.isPresent()) {
-            throw new DatabaseNotFoundException("no location found with id - " + id);
-        }
-
-        locationRepository.delete(location.get());
-        return location.get().getId();
+        return locationRepository.findById(id).map(location -> {
+            locationRepository.delete(location);
+            return id;
+        }).orElseThrow(DatabaseNotFoundException::new);
     }
 }
