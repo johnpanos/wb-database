@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -23,13 +24,13 @@ public class MentorController {
 
     @GetMapping(value = "/")
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
-    private List<User> getMentors() {
+    public List<User> getMentors() {
         return userRepository.findByType(UserType.MENTOR);
     }
 
     @PostMapping(value = "/")
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
-    private User createMentor(@RequestBody User mentor) {
+    public User createMentor(@RequestBody User mentor) {
         User dbMentor = new User();
 
         dbMentor.setFirstName(mentor.getFirstName());
@@ -50,4 +51,10 @@ public class MentorController {
         return userRepository.save(dbMentor);
     }
 
+    @DeleteMapping("/{id}")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
+    public Integer deleteMentor(@PathVariable Integer id) {
+        userRepository.deleteById(id);
+        return id;
+    }
 }

@@ -39,6 +39,7 @@ public class PartController {
         return partRepository.findAll(pageable);
     }
 
+    @Secured("ROLE_USER")
     @GetMapping("/{id}")
     public Part getPart(@PathVariable("id") Integer id) {
         Optional<Part> partOptional = partRepository.findById(id);
@@ -59,13 +60,13 @@ public class PartController {
         return partRepository.findByNameIgnoreCaseContaining(search, pageable);
     }
 
-    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_CREATE" })
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @PostMapping("/")
     public Part createPart(@Valid @RequestBody Part part) {
         return partRepository.save(part);
     }
 
-    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_UPDATE" })
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @PutMapping("/{id}")
     public Part updatePart(@RequestBody Part part) {
         return partRepository.findById(part.getId()).map(dbPart -> {
@@ -97,7 +98,7 @@ public class PartController {
         }).orElseThrow(DatabaseNotFoundException::new);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_QUANTITY" })
     @PutMapping("/{id}/deposit")
     public Part deposit(@PathVariable Integer id, @RequestParam("q") Integer quantity) {
         return partRepository.findById(id).map(part -> {
@@ -106,7 +107,7 @@ public class PartController {
         }).orElseThrow(DatabaseNotFoundException::new);
     }
 
-    @Secured("ROLE_USER")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @PutMapping("/{id}/{locationId}")
     public Part updatePartLocation(@PathVariable Integer id, @PathVariable("locationId") Integer locationId) {
         return partRepository.findById(id).map(part -> locationRepository.findById(locationId).map(location -> {
@@ -115,7 +116,7 @@ public class PartController {
         }).orElseThrow(DatabaseNotFoundException::new)).orElseThrow(DatabaseNotFoundException::new);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @DeleteMapping("/{id}")
     public Integer deletePart(@PathVariable("id") Integer id) {
         return partRepository.findById(id).map(part -> {
@@ -127,7 +128,7 @@ public class PartController {
         }).orElseThrow(DatabaseNotFoundException::new);
     }
 
-    @Secured("ROLE_ADMIN")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @DeleteMapping("/")
     public Integer[] deleteParts(@RequestBody Integer[] ids) {
         for (int i = 0; i < ids.length; i++) {

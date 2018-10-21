@@ -1,5 +1,6 @@
 package com.team3256.database.model.hr;
 
+import com.team3256.database.error.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             builder.password(user.getPassword());
             builder.roles(getRoles(user.getRoles()).toArray(new String[0]));
         } else {
-            throw new UsernameNotFoundException("User not found");
+            throw new UnauthorizedException("User not found");
         }
 
         return builder.build();

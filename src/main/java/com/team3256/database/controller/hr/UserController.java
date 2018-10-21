@@ -24,6 +24,12 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable Integer id) {
+        return userRepository.findById(id).orElseThrow(DatabaseNotFoundException::new);
+    }
+
     @Secured("ROLE_USER")
     @GetMapping("/info")
     public User getUserInfo(@AuthenticationPrincipal Principal principal) {
@@ -32,7 +38,7 @@ public class UserController {
 
     @PutMapping(value = "/{id}")
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
-    public User editUser(@RequestBody User user, @PathVariable("id") Integer id) {
+    public User updateUser(@RequestBody User user, @PathVariable("id") Integer id) {
         if (!id.equals(user.getId())) {
             throw new DatabaseNotFoundException();
         }

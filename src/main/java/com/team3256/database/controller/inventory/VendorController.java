@@ -26,13 +26,13 @@ public class VendorController {
         return vendorRepository.findAll();
     }
 
-    @Secured("ROLE_USER")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public Vendor createVendor(@RequestBody @Valid Vendor vendor) {
         return vendorRepository.save(vendor);
     }
 
-    @Secured("ROLE_USER")
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public Vendor updateVendor(@RequestBody Vendor vendor) {
         Optional<Vendor> vendorOptional = vendorRepository.findById(vendor.getId());
@@ -52,6 +52,7 @@ public class VendorController {
         return vendorRepository.save(dbVendor);
     }
 
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public Integer deleteVendor(@PathVariable("id") Integer id) {
         Optional<Vendor> vendorOptional = vendorRepository.findById(id);

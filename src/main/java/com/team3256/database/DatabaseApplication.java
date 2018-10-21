@@ -12,6 +12,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
@@ -36,26 +37,22 @@ public class DatabaseApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
-        Optional<Role> adminRoleOptional = roleRepository.findByName("ADMIN");
-        Optional<Role> mentorRoleOptional = roleRepository.findByName("MENTOR");
-        Optional<Role> userRoleOptional = roleRepository.findByName("USER");
+        ArrayList<String> roles = new ArrayList<>();
 
-        if (!adminRoleOptional.isPresent()) {
-            Role role = new Role();
-            role.setName("ADMIN");
-            roleRepository.save(role);
-        }
+        roles.add("ADMIN");
+        roles.add("STUDENT");
+        roles.add("MENTOR");
+        roles.add("USER");
+        roles.add("INV_EDIT");
+        roles.add("INV_QUANTITY");
 
-        if (!mentorRoleOptional.isPresent()) {
-            Role role = new Role();
-            role.setName("MENTOR");
-            roleRepository.save(role);
-        }
-
-        if (!userRoleOptional.isPresent()) {
-            Role role = new Role();
-            role.setName("USER");
-            roleRepository.save(role);
+        for (String role : roles) {
+            Optional<Role> roleOptional = roleRepository.findByName(role);
+            if (!roleOptional.isPresent()) {
+                Role dbRole = new Role();
+                dbRole.setName(role);
+                roleRepository.save(dbRole);
+            }
         }
 
         Role adminRole = roleRepository.findByName("ADMIN").get();
