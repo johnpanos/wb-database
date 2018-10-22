@@ -13,7 +13,7 @@ public class Location {
 
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     @JsonBackReference
     private List<Part> parts;

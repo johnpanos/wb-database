@@ -2,8 +2,8 @@ package com.team3256.database.controller.inventory;
 
 import com.team3256.database.error.DatabaseAlreadyExistsException;
 import com.team3256.database.error.DatabaseNotFoundException;
-import com.team3256.database.model.inventory.Location;
-import com.team3256.database.model.inventory.LocationRepository;
+import com.team3256.database.model.inventory.*;
+import com.team3256.database.service.PartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +18,12 @@ import java.util.Optional;
 public class LocationController {
     @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
+    private PartRepository partRepository;
+
+    @Autowired
+    private PartService partService;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Page getLocations(Pageable pageable) {
@@ -51,6 +57,10 @@ public class LocationController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public Integer deleteLocation(@PathVariable("id") Integer id) {
         return locationRepository.findById(id).map(location -> {
+            for (Part part : location.getParts()) {
+                System.out.println("Deleteing part " + part.getName());
+                partService.delete(part);
+            }
             locationRepository.delete(location);
             return id;
         }).orElseThrow(DatabaseNotFoundException::new);

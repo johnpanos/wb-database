@@ -2,6 +2,7 @@ package com.team3256.database.controller.inventory;
 
 import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.model.inventory.*;
+import com.team3256.database.service.PartService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class PartController {
 
     @Autowired
     private PartRepository partRepository;
+
+    @Autowired
+    private PartService partService;
 
     @Autowired
     private LocationRepository locationRepository;
@@ -82,29 +86,41 @@ public class PartController {
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_QUANTITY" })
     @PutMapping("/{id}/withdrawal")
     public Part withdrawal(@PathVariable Integer id, @RequestParam("q") int quantity) {
-        return partRepository.findById(id).map(part -> {
-            int finalQuantity = quantity;
-            if (finalQuantity > part.getQuantity()) {
-                finalQuantity = part.getQuantity();
-            }
+        Optional<Part> partOptional = partRepository.findById(id);
 
-            if (finalQuantity < 0) {
-                finalQuantity = 0;
-            }
+        if (!partOptional.isPresent()) {
+            throw new DatabaseNotFoundException();
+        }
 
-            part.setQuantity(part.getQuantity() - finalQuantity);
+        Part part = partOptional.get();
 
-            return partRepository.save(part);
-        }).orElseThrow(DatabaseNotFoundException::new);
+        if (quantity > part.getQuantity()) {
+            quantity = part.getQuantity();
+        }
+
+        if (quantity < 0) {
+            quantity = 0;
+        }
+
+        part.setQuantity(part.getQuantity() - quantity);
+
+        return partRepository.save(part);
     }
 
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_QUANTITY" })
     @PutMapping("/{id}/deposit")
     public Part deposit(@PathVariable Integer id, @RequestParam("q") Integer quantity) {
-        return partRepository.findById(id).map(part -> {
-            part.setQuantity(part.getQuantity() + quantity < 0 ? 0 : quantity);
-            return partRepository.save(part);
-        }).orElseThrow(DatabaseNotFoundException::new);
+        Optional<Part> partOptional = partRepository.findById(id);
+
+        if (!partOptional.isPresent()) {
+            throw new DatabaseNotFoundException();
+        }
+
+        Part part = partOptional.get();
+
+        part.setQuantity(part.getQuantity() + ((quantity < 0) ? 0 : quantity));
+
+        return partRepository.save(part);
     }
 
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
@@ -120,10 +136,7 @@ public class PartController {
     @DeleteMapping("/{id}")
     public Integer deletePart(@PathVariable("id") Integer id) {
         return partRepository.findById(id).map(part -> {
-            for (PartVendorInformation vendorInformation : part.getVendorInformation()) {
-                partVendorInformationRepository.delete(vendorInformation);
-            }
-            partRepository.deleteById(id);
+            partService.delete(part);
             return id;
         }).orElseThrow(DatabaseNotFoundException::new);
     }

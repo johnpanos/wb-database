@@ -1,5 +1,7 @@
 package com.team3256.database.model.inventory;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
@@ -38,7 +40,7 @@ public class Part {
     @Size(max = 64, message = "Sublocation must me no longer than 64 characters")
     private String sublocation;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany
     @JoinColumn(name = "part_id")
     private List<PartVendorInformation> vendorInformation;
 
