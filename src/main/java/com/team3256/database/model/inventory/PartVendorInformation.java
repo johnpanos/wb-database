@@ -21,7 +21,7 @@ public class PartVendorInformation {
     private Vendor vendor;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "part_id")
     @JsonBackReference
     private Part part;

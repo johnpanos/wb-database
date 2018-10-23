@@ -40,8 +40,11 @@ public class Part {
     @Size(max = 64, message = "Sublocation must me no longer than 64 characters")
     private String sublocation;
 
-    @OneToMany
-    @JoinColumn(name = "part_id")
+    @OneToMany(
+        mappedBy = "part",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
     private List<PartVendorInformation> vendorInformation;
 
     public Integer getId() {

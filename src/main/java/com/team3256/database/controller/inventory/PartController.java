@@ -145,16 +145,7 @@ public class PartController {
     @DeleteMapping("/")
     public Integer[] deleteParts(@RequestBody Integer[] ids) {
         for (int i = 0; i < ids.length; i++) {
-            int id = ids[i];
-            Optional<Part> partOptional = partRepository.findById(id);
-
-            if (partOptional.isPresent()) {
-                Part part = partOptional.get();
-                for (PartVendorInformation vendorInformation : part.getVendorInformation()) {
-                    partVendorInformationRepository.delete(vendorInformation);
-                }
-                partRepository.deleteById(id);
-            }
+            partRepository.deleteById(ids[i]);
         }
 
         return ids;

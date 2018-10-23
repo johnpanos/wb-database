@@ -16,10 +16,6 @@ public class PartService {
     private PartVendorInformationRepository partVendorInformationRepository;
 
     public Integer delete(Part part) {
-        for (PartVendorInformation vendorInformation : part.getVendorInformation()) {
-            System.out.println("delteing vendor info " + vendorInformation.getPartNumber());
-            partVendorInformationRepository.deleteById(vendorInformation.getId());
-        }
         partRepository.deleteById(part.getId());
         return part.getId();
     }
