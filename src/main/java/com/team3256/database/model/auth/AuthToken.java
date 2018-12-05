@@ -3,7 +3,7 @@ package com.team3256.database.model.auth;
 public class AuthToken {
     private String token;
 
-    public AuthToken(){
+    public AuthToken() {
 
     }
 

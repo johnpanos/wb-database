@@ -15,11 +15,11 @@ public class ViewConfig extends WebMvcConfigurerAdapter {
         // All resources go to where they should go
         registry
                 .addResourceHandler("/**/*.css", "/**/*.html", "/**/*.js", "/**/*.jsx", "/**/*.png", "/**/*.ttf", "/**/*.woff", "/**/*.woff2")
-                .setCachePeriod(0)
+                .setCachePeriod(86400)
                 .addResourceLocations("classpath:/static/");
 
         registry.addResourceHandler("/", "/**")
-                .setCachePeriod(0)
+                .setCachePeriod(86400)
                 .addResourceLocations("classpath:/static/index.html")
                 .resourceChain(true)
                 .addResolver(new PathResourceResolver() {

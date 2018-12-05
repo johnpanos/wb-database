@@ -58,7 +58,7 @@ public class LocationController {
     public Integer deleteLocation(@PathVariable("id") Integer id) {
         return locationRepository.findById(id).map(location -> {
             for (Part part : location.getParts()) {
-                System.out.println("Deleteing part " + part.getName());
+                System.out.println("Deleting part " + part.getName());
                 partService.delete(part);
             }
             locationRepository.delete(location);

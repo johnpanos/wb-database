@@ -73,11 +73,12 @@ public class PartController {
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @PutMapping("/{id}")
     public Part updatePart(@RequestBody Part part) {
+
         return partRepository.findById(part.getId()).map(dbPart -> {
-            dbPart.setName(part.getName());
+            dbPart.setName(part.getName().toUpperCase());
             dbPart.setSublocation(part.getSublocation());
             dbPart.setMinQuantity(part.getMinQuantity());
-            dbPart.setNomenclature(part.getNomenclature());
+            dbPart.setNomenclature(part.getNomenclature().toUpperCase().replace(" ", "_"));
 
             return partRepository.save(dbPart);
         }).orElseThrow(DatabaseNotFoundException::new);
@@ -149,5 +150,17 @@ public class PartController {
         }
 
         return ids;
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping("/lowCount")
+    public long getLowCount() {
+        return partRepository.getLowCount();
+    }
+
+    @Secured("ROLE_USER")
+    @GetMapping("/count")
+    public long getCount() {
+        return partRepository.count();
     }
 }

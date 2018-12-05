@@ -8,9 +8,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +42,8 @@ public class DatabaseApplication {
         roles.add("USER");
         roles.add("INV_EDIT");
         roles.add("INV_QUANTITY");
+        roles.add("PO_EDIT");
+        roles.add("PO_VIEW");
 
         for (String role : roles) {
             Optional<Role> roleOptional = roleRepository.findByName(role);

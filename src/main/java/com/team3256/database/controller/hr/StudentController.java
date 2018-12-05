@@ -3,6 +3,7 @@ package com.team3256.database.controller.hr;
 import com.team3256.database.error.DatabaseAlreadyExistsException;
 import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.model.hr.*;
+import com.team3256.database.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,6 +25,9 @@ public class StudentController {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private StudentService studentService;
+
     @GetMapping("/")
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
     public List<User> getAllStudents() {
@@ -37,39 +41,26 @@ public class StudentController {
             throw new DatabaseAlreadyExistsException("user with email already exists");
         }
 
-        User dbUser = new User();
-
-        dbUser.setFirstName(user.getFirstName());
-        dbUser.setMiddleName(user.getMiddleName());
-        dbUser.setLastName(user.getLastName());
-        dbUser.setCellPhone(user.getCellPhone());
-        dbUser.setEmail(user.getEmail());
-        dbUser.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-        dbUser.setBirthday(user.getBirthday());
-        dbUser.setGender(user.getGender());
-        dbUser.setType(UserType.STUDENT);
-
-        Role studentRole = roleRepository.findByName("STUDENT").get();
-        Role userRole = roleRepository.findByName("USER").get();
-
-        dbUser.setRoles(Arrays.asList(studentRole, userRole));
-
-        Student dbStudent = new Student();
         Student student = user.getStudent();
 
-        dbStudent.setBackupEmail(student.getBackupEmail());
-        dbStudent.setGrade(student.getGrade());
-        dbStudent.setPowerSchoolId(student.getPowerSchoolId());
-        dbStudent.setShirtSize(student.getShirtSize());
-        dbStudent.setPoloSize(student.getPoloSize());
-        dbStudent.setInFLL(student.isInFLL());
-        dbStudent.setInFTC(student.isInFTC());
-        dbStudent.setInFRC(student.isInFRC());
-        dbStudent.setUser(dbUser);
-
-        dbUser.setStudent(dbStudent);
-
-        return userRepository.save(dbUser);
+        return studentService.create(
+                user.getFirstName(),
+                user.getMiddleName(),
+                user.getLastName(),
+                user.getCellPhone(),
+                user.getEmail(),
+                user.getPassword(),
+                user.getBirthday(),
+                user.getGender(),
+                student.getBackupEmail(),
+                student.getGrade(),
+                student.getPowerSchoolId(),
+                student.getShirtSize(),
+                student.getPoloSize(),
+                student.isInFLL(),
+                student.isInFTC(),
+                student.isInFRC()
+        );
     }
 
     @PutMapping("/{id}")

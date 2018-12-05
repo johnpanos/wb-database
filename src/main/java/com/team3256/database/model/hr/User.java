@@ -1,13 +1,13 @@
 package com.team3256.database.model.hr;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
+import com.team3256.database.model.inventory.order.PurchaseOrder;
 
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "wb_user")
 public class User {
     @Id
@@ -53,6 +53,12 @@ public class User {
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private List<Role> roles;
+
+    @OneToMany(mappedBy = "user")
+    private List<PurchaseOrder> purchaseOrders;
+
+    @OneToMany(mappedBy = "user")
+    private List<Notification> notifications;
 
     public Integer getId() {
         return id;
@@ -150,5 +156,23 @@ public class User {
 
     public void setStudent(Student student) {
         this.student = student;
+    }
+
+    @JsonIgnore
+    public List<PurchaseOrder> getPurchaseOrders() {
+        return purchaseOrders;
+    }
+
+    public void setPurchaseOrders(List<PurchaseOrder> purchaseOrders) {
+        this.purchaseOrders = purchaseOrders;
+    }
+
+    @JsonIgnore
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
     }
 }

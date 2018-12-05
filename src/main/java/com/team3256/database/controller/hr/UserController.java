@@ -1,11 +1,13 @@
 package com.team3256.database.controller.hr;
 
 import com.team3256.database.error.DatabaseNotFoundException;
+import com.team3256.database.model.auth.PasswordChange;
 import com.team3256.database.model.hr.User;
 import com.team3256.database.model.hr.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -67,6 +69,15 @@ public class UserController {
             dbUser.setBirthday(user.getBirthday());
             dbUser.setGender(user.getGender());
             return userRepository.save(dbUser);
+        }).orElseThrow(DatabaseNotFoundException::new);
+    }
+
+    @PutMapping(value = "/password")
+    @Secured({ "ROLE_USER" })
+    public User updatePassword(@AuthenticationPrincipal Principal principal, @RequestBody PasswordChange passwordChange) {
+        return userRepository.findByEmail(principal.getName()).map(user -> {
+            user.setPassword(new BCryptPasswordEncoder().encode(passwordChange.getPassword()));
+            return userRepository.save(user);
         }).orElseThrow(DatabaseNotFoundException::new);
     }
 
