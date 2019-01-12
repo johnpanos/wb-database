@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -18,7 +17,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/inventory/part")
 public class PartController {
-
     private static final Logger logger = LoggerFactory.getLogger(PartController.class);
 
     @Autowired
@@ -73,7 +71,6 @@ public class PartController {
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @PutMapping("/{id}")
     public Part updatePart(@RequestBody Part part) {
-
         return partRepository.findById(part.getId()).map(dbPart -> {
             dbPart.setName(part.getName().toUpperCase());
             dbPart.setSublocation(part.getSublocation());
@@ -124,6 +121,17 @@ public class PartController {
         return partRepository.save(part);
     }
 
+    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_QUANTITY", "ROLE_INV_EDIT" })
+    @PutMapping("/{id}/update-quantity")
+    public Part updateQuantity(@PathVariable Integer id, @RequestParam("q") Integer quantity) {
+        int newQuantity = quantity < 0 ? 0 : quantity;
+
+        return partRepository.findById(id).map(part -> {
+            part.setQuantity(quantity);
+            return partRepository.save(part);
+        }).orElseThrow(DatabaseNotFoundException::new);
+    }
+
     @Secured({ "ROLE_ADMIN", "ROLE_MENTOR", "ROLE_INV_EDIT" })
     @PutMapping("/{id}/{locationId}")
     public Part updatePartLocation(@PathVariable Integer id, @PathVariable("locationId") Integer locationId) {
@@ -153,7 +161,7 @@ public class PartController {
     }
 
     @Secured("ROLE_USER")
-    @GetMapping("/lowCount")
+    @GetMapping("/low-count")
     public long getLowCount() {
         return partRepository.getLowCount();
     }
