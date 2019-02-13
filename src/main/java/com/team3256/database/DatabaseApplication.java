@@ -1,6 +1,11 @@
 package com.team3256.database;
 
 import com.team3256.database.model.hr.*;
+import com.team3256.database.model.scouting.Regional;
+import com.team3256.database.model.scouting.RegionalRepository;
+import com.team3256.database.model.scouting.Team;
+import com.team3256.database.model.scouting.TeamRepository;
+import com.team3256.database.service.ScoutingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,10 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @SpringBootApplication
 public class DatabaseApplication {
@@ -21,7 +23,16 @@ public class DatabaseApplication {
     private RoleRepository roleRepository;
 
     @Autowired
+    private RegionalRepository regionalRepository;
+
+    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TeamRepository teamRepository;
+
+    @Autowired
+    private ScoutingService scoutingService;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
