@@ -1,6 +1,7 @@
 package com.team3256.database.model.hr;
 
 import com.fasterxml.jackson.annotation.*;
+import com.team3256.database.model.View;
 import com.team3256.database.model.inventory.order.PurchaseOrder;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity(name = "wb_user")
 public class User {
+    @JsonView(View.Public.class)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -21,12 +23,14 @@ public class User {
     @Column(name = "password")
     private String password;
 
+    @JsonView(View.Public.class)
     @Column(name = "first_name")
     private String firstName;
 
     @Column(name = "middle_name")
     private String middleName;
 
+    @JsonView(View.Public.class)
     @Column(name = "last_name")
     private String lastName;
 
@@ -45,15 +49,17 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserType type;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Student student;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_with_role",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     private List<Role> roles;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user")
     private List<PurchaseOrder> purchaseOrders;
 

@@ -1,6 +1,9 @@
 package com.team3256.database.controller.scouting;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.team3256.database.error.DatabaseNotFoundException;
+import com.team3256.database.error.RegionalNotFoundException;
+import com.team3256.database.model.View;
 import com.team3256.database.model.scouting.Regional;
 import com.team3256.database.model.scouting.RegionalRepository;
 import com.team3256.database.model.scouting.Team;
@@ -20,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/scouting/regional")
+@JsonView(View.Public.class)
 public class RegionalController {
     @Autowired
     private RegionalRepository regionalRepository;
@@ -29,6 +33,11 @@ public class RegionalController {
 
     @Autowired
     private ScoutingService scoutingService;
+
+    @GetMapping("/")
+    public Iterable<Regional> getAllRegionals() {
+        return regionalRepository.findAll();
+    }
 
     @Transactional
     @GetMapping("/{key}")
@@ -67,7 +76,7 @@ public class RegionalController {
 
     @GetMapping("/{key}/teams")
     public List<Team> getRegionalTeams(@PathVariable("key") String key) {
-        return regionalRepository.findById(key).map(Regional::getTeams).orElseThrow(DatabaseNotFoundException::new);
+        return regionalRepository.findById(key).map(Regional::getTeams).orElseThrow(RegionalNotFoundException::new);
     }
 
 }

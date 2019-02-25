@@ -1,12 +1,15 @@
 package com.team3256.database.model.scouting;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.team3256.database.model.View;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity(name = "team")
+@JsonView(View.Public.class)
 public class Team {
     @Id
     private String key;
@@ -20,7 +23,7 @@ public class Team {
     private List<Regional> regionals;
 
     @JsonProperty("team_number")
-    int teamNumber;
+    private int teamNumber;
 
     private String city;
 

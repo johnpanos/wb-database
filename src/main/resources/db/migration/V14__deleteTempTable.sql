@@ -1,0 +1,1 @@
+DROP TABLE match_data_scouted_by;

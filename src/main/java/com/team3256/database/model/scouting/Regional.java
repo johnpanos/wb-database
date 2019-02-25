@@ -1,5 +1,9 @@
 package com.team3256.database.model.scouting;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +18,8 @@ public class Regional {
     @Column(name = "short_name")
     private String shortName;
 
-    @OneToMany(mappedBy = "regional", cascade = {CascadeType.ALL})
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "regional", cascade = {CascadeType.ALL})
     private List<Match> matches;
 
     @ManyToMany(fetch = FetchType.LAZY,

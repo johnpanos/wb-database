@@ -1,9 +1,10 @@
 package com.team3256.database.controller.scouting;
 
-import com.team3256.database.error.DatabaseAlreadyExistsException;
-import com.team3256.database.error.DatabaseNotFoundException;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.team3256.database.error.*;
 import com.team3256.database.model.hr.User;
 import com.team3256.database.model.hr.UserRepository;
+import com.team3256.database.model.View;
 import com.team3256.database.model.scouting.*;
 import com.team3256.database.model.scouting.match.MatchData;
 import com.team3256.database.model.scouting.match.MatchDataRepository;
@@ -12,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import javax.transaction.TransactionScoped;
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/scouting/match")
+@JsonView(View.Public.class)
 public class MatchController {
     @Autowired
     private UserRepository userRepository;
@@ -37,20 +38,19 @@ public class MatchController {
     @Autowired
     private MatchDataRepository matchDataRepository;
 
-    @Transactional
     @PostMapping("/")
+    @JsonView(View.Public.class)
     public MatchData addMatch(@AuthenticationPrincipal Principal principal, @RequestBody MatchDTO match) {
         System.out.println(match.getRegionalKey() + "-" + match.getMatchNumber() + "-frc" + match.getTeamKey());
 
         User user = userRepository.findByEmail(principal.getName()).orElseThrow(DatabaseNotFoundException::new);
 
         if (matchDataRepository.existsById(match.getRegionalKey() + "-" + match.getMatchNumber() + "-frc" + match.getTeamKey())) {
-            System.out.println("ALREADY EXISTS");
             throw new DatabaseAlreadyExistsException("Match Data for team already exists");
         } else {
-            match.getMatchData().setTeam(teamRepository.findById("frc" + match.getTeamKey()).orElseThrow(DatabaseNotFoundException::new));
+            match.getMatchData().setTeam(teamRepository.findById("frc" + match.getTeamKey()).orElseThrow(TeamNotFoundException::new));
             match.getMatchData().setAlliance(match.getAlliance());
-            match.getMatchData().setScoutedBy(user.getFirstName() + " " + user.getLastName());
+            match.getMatchData().setScoutedBy(user);
 
             MatchData dbMatch = scoutingService.addMatchDataForRegional(match.getRegionalKey(), match.getMatchNumber(), match.getMatchData());
 
@@ -60,17 +60,21 @@ public class MatchController {
 
     @DeleteMapping("/{matchKey}")
     public String deleteMatch(@PathVariable("matchKey") String matchKey) {
-        matchRepository.delete(matchRepository.findById(matchKey).orElseThrow(DatabaseNotFoundException::new));
+        matchRepository.delete(matchRepository.findById(matchKey).orElseThrow(MatchNotFoundException::new));
         return matchKey;
     }
 
     @GetMapping("/{matchKey}")
+    @JsonView(View.Public.class)
     public Match getMatch(@PathVariable("matchKey") String matchKey) {
-        return matchRepository.findById(matchKey).orElseThrow(DatabaseNotFoundException::new);
+        return matchRepository.findById(matchKey).orElseThrow(MatchNotFoundException::new);
     }
 
-    @GetMapping("/team/{teamKey}")
-    public List<MatchData> getMatchDataForTeam(@PathVariable("teamKey") String teamKey) {
-        return matchDataRepository.findByTeam(teamRepository.findById(teamKey).orElseThrow(DatabaseNotFoundException::new)).orElseThrow(DatabaseNotFoundException::new);
+    @GetMapping("/user/{userId}")
+    @JsonView(View.Public.class)
+    public Iterable<MatchData> getAllMatchesForUser(@PathVariable int userId) {
+        User user = userRepository.findById(userId).orElseThrow(DatabaseNotFoundException::new);
+        return matchDataRepository.findByScoutedBy(user).orElseThrow(MatchDataNotFoundException::new);
     }
+
 }
