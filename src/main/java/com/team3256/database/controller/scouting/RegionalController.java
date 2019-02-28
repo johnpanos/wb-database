@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.team3256.database.error.DatabaseNotFoundException;
 import com.team3256.database.error.RegionalNotFoundException;
 import com.team3256.database.model.View;
-import com.team3256.database.model.scouting.Regional;
-import com.team3256.database.model.scouting.RegionalRepository;
-import com.team3256.database.model.scouting.Team;
-import com.team3256.database.model.scouting.TeamRepository;
+import com.team3256.database.model.scouting.*;
 import com.team3256.database.service.ScoutingService;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +69,11 @@ public class RegionalController {
         });
 
         return regional;
+    }
+
+    @GetMapping("/{key}/matches")
+    public List<Match> getMatchesForRegional(@PathVariable("key") String key) {
+        return regionalRepository.findById(key).orElseThrow(DatabaseNotFoundException::new).getMatches();
     }
 
     @GetMapping("/{key}/teams")

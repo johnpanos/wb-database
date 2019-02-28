@@ -49,8 +49,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserType type;
 
-    @JsonIgnore
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Student student;
 
     @ManyToMany(fetch = FetchType.LAZY)

@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.TransactionScoped;
 import java.security.Principal;
 
 @RestController
@@ -37,6 +36,12 @@ public class MatchController {
 
     @Autowired
     private MatchDataRepository matchDataRepository;
+
+    @GetMapping("/")
+    @JsonView(View.Public.class)
+    public Iterable<Match> getMatches() {
+        return matchRepository.findAll();
+    }
 
     @PostMapping("/")
     @JsonView(View.Public.class)
@@ -62,6 +67,11 @@ public class MatchController {
     public String deleteMatch(@PathVariable("matchKey") String matchKey) {
         matchRepository.delete(matchRepository.findById(matchKey).orElseThrow(MatchNotFoundException::new));
         return matchKey;
+    }
+
+    @DeleteMapping("/all")
+    public void deleteAll() {
+        matchRepository.deleteAll();
     }
 
     @GetMapping("/{matchKey}")

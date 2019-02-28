@@ -10,9 +10,64 @@ import com.team3256.database.model.scouting.Team;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity(name="match_data")
+@SqlResultSetMapping(
+        name="matchComputed",
+        classes=@ConstructorResult(
+                targetClass=MatchComputed.class,
+                columns={
+                        @ColumnResult(name="team", type= String.class),
+                        @ColumnResult(name="auto_hab_level_average", type=Double.class),
+                        @ColumnResult(name="auto_crossed_count", type=Integer.class),
+                        @ColumnResult(name="total_cargo_count", type=Integer.class),
+                        @ColumnResult(name="total_hatch_count", type=Integer.class),
+                        @ColumnResult(name="average_cargo_time", type=Double.class),
+                        @ColumnResult(name="average_hatch_time", type=Double.class),
+                        @ColumnResult(name="climb_hab_average", type=Double.class),
+                        @ColumnResult(name="climb_average_cycle_time", type=Double.class),
+                        @ColumnResult(name="climb_average_time", type=Double.class),
+                        @ColumnResult(name="climb_support_count", type=Integer.class),
+                        @ColumnResult(name="disconnect_count", type=Integer.class),
+                        @ColumnResult(name="average_disconnect_duration", type=Double.class),
+                        @ColumnResult(name="foul_count", type=Integer.class)
+                }
+        )
+)
+
+@NamedNativeQuery(
+        name="match_data.computeMatches",
+        resultClass = MatchComputed.class,
+        query="SELECT DISTINCT match_data.team_key as team,\n" +
+                "\tAVG(match_data.hab_level) as auto_hab_level_average,\n" +
+                "\tCOUNT(CASE WHEN match_data.crossed THEN 1 END) as auto_crossed_count,\n" +
+                "\t\n" +
+                "\tSUM(match_data.cargo_count) as total_cargo_count,\n" +
+                "\tSUM(match_data.hatch_count) as total_hatch_count,\n" +
+                "\t\n" +
+                "\tAVG(match_data.average_cargo) as average_cargo_time,\n" +
+                "\tAVG(match_data.average_hatch) as average_hatch_time,\n" +
+                "\t\n" +
+                "\tAVG(climb.hab_level) as climb_hab_average,\n" +
+                "\tAVG(climb.cycle_time) as climb_average_cycle_time,\n" +
+                "\tAVG(climb.time) as climb_average_time,\n" +
+                "\tCOUNT(CASE WHEN climb.can_support THEN 1 END) as climb_support_count,\n" +
+                "\t\n" +
+                "\tCOUNT(disconnect.duration) as disconnect_count,\n" +
+                "\tAVG(disconnect.duration) as average_disconnect_duration,\n" +
+                "\t\n" +
+                "\tCOUNT(foul) as foul_count\n" +
+                "\t\n" +
+                "\tFROM match_data\n" +
+                "\tJOIN climb ON match_data.id = climb.match_id\n" +
+                "\tJOIN disconnect ON match_data.id = disconnect.match_id\n" +
+                "\tJOIN foul ON match_data.id = foul.match_id\n" +
+                "\tGROUP BY match_data.team_key;",
+        resultSetMapping="matchComputed"
+)
+
 @JsonView(View.Public.class)
 public class MatchData {
     @Id

@@ -39,11 +39,11 @@ public class StudentService {
             boolean frc
     ) {
 
-        Optional<Student> student = studentRepository.findByPowerSchoolId(powerSchoolId);
-
-        if (student.isPresent()) {
-            return null;
-        }
+//        Optional<Student> student = studentRepository.findByPowerSchoolId(powerSchoolId);
+//
+//        if (student.isPresent()) {
+//            return null;
+//        }
 
         User dbUser = new User();
 

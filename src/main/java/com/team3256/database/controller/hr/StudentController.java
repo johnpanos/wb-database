@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/hr/student")
+@RequestMapping("/auth/student")
 public class StudentController {
     @Autowired
     private UserRepository userRepository;
@@ -35,13 +35,14 @@ public class StudentController {
     }
 
     @PostMapping("/")
-    @Secured({ "ROLE_ADMIN", "ROLE_MENTOR" })
     public User createStudent(@RequestBody User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new DatabaseAlreadyExistsException("user with email already exists");
         }
 
         Student student = user.getStudent();
+
+        System.out.println(student.getBackupEmail());
 
         return studentService.create(
                 user.getFirstName(),
